@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
-    <Content Include="scripts\dummy_contacts.js" />
+    <Content Include="scripts\dummy_data.js" />
     <Content Include="kendo\js\jquery.min.js" />
     <Content Include="kendo\js\kendo.mobile.min.js" />
     <Content Include="kendo\styles\images\back.png" />

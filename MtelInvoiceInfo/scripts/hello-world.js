@@ -5,26 +5,57 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 // PhoneGap is ready
 function onDeviceReady() {
-    new MtelInvoiceInfoApp();
+    var myApp = new MtelInvoiceInfoApp();
 }
 
 function MtelInvoiceInfoApp () {
-    this._createContacts();
-    this._findContacts();
+    this.createPieChart();
 }
 
-MtelInvoiceInfoApp.prototype._findContacts = function () {
+MtelInvoiceInfoApp.prototype.getCallDurations = function () {
+    var i,
+        groupedContacts = {};
+    
+    for (i=0; i < dummyContacts.length; i++) {
+         var number = dummyContacts[i][0];
+         var duration = dummyContacts[i][1];
+        
+        if (!(number in groupedContacts)) {
+            groupedContacts[number] = duration;
+        }
+        
+        groupedContacts[number] += duration;
+    }
+    
+    return groupedContacts;
+};
+
+MtelInvoiceInfoApp.prototype.getPhoneContact = function (number) {
     var options = new ContactFindOptions();
-    options.filter="Doug";
-    options.multiple=true; 
-    var fields = ["name", "displayName"];
-    navigator.contacts.find(fields, onSuccess, onError, options);
     
-    function onSuccess(contacts) {
-        console.log(contacts);
-    };
+    options.filter=number;
+    return navigator.contacts.find(['phones'], function (contacts) {console.log(contacts);}, function (contactError) {}, options);
+};
+
+MtelInvoiceInfoApp.prototype.getChartSeries = function () {
+    var numberDurationTimes = this.getCallDurations();
+    var contacts = [];
+    var i;
     
-    function onError(contactError) {
-        alert('onError!');
-    };
+    for (number in numberDurationTimes) {
+        var contact = this.getPhoneContact(number);
+        if (!contact) {
+             continue;   
+        }
+        contacts.push({category: contact.displayName, value: numberDurationTimes[number]});
+        $('<div>' + contact.displayName + ', ' + numberDurationTimes[number]).appendTo('#myLog');
+    }
+    
+    return contacts;
+};
+
+MtelInvoiceInfoApp.prototype.createPieChart = function () {
+    $('#myPieChart').kendoChart({
+        series: this.getChartSeries()
+    });
 };
